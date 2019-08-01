@@ -50,6 +50,8 @@
 
 #include "rtpdebug.h"
 
+using namespace std;
+
 #define RTPUDPV4TRANS_MAXPACKSIZE							65535
 #define RTPUDPV4TRANS_IFREQBUFSIZE							8192
 
@@ -166,7 +168,7 @@ int GetAutoSockets(uint32_t bindIP, bool allowOdd, bool rtcpMux,
 {
 	const int maxAttempts = 1024;
 	int attempts = 0;
-	std::vector<SocketType> toClose;
+	vector<SocketType> toClose;
 
 	while (attempts++ < maxAttempts)
 	{
@@ -186,7 +188,7 @@ int GetAutoSockets(uint32_t bindIP, bool allowOdd, bool rtcpMux,
 		addr.sin_family = AF_INET;
 		addr.sin_port = 0;
 		addr.sin_addr.s_addr = htonl(bindIP);
-		if (bind(sock,(struct sockaddr *)&addr,sizeof(struct sockaddr_in)) != 0)
+		if (::bind(sock,(struct sockaddr *)&addr,sizeof(struct sockaddr_in)) != 0)
 		{
 			RTPCLOSE(sock);
 			for (size_t i = 0 ; i < toClose.size() ; i++)
@@ -253,7 +255,7 @@ int GetAutoSockets(uint32_t bindIP, bool allowOdd, bool rtcpMux,
 				addr.sin_family = AF_INET;
 				addr.sin_port = htons(secondPort);
 				addr.sin_addr.s_addr = htonl(bindIP);
-				if (bind(sock2,(struct sockaddr *)&addr,sizeof(struct sockaddr_in)) == 0)
+				if (::bind(sock2,(struct sockaddr *)&addr,sizeof(struct sockaddr_in)) == 0)
 				{
 					// In this case, we have two consecutive port numbers, the lower of
 					// which is even
@@ -397,7 +399,7 @@ int RTPUDPv4Transmitter::Create(size_t maximumpacketsize,const RTPTransmissionPa
 			addr.sin_family = AF_INET;
 			addr.sin_port = htons(params->GetPortbase());
 			addr.sin_addr.s_addr = htonl(bindIP);
-			if (bind(rtpsock,(struct sockaddr *)&addr,sizeof(struct sockaddr_in)) != 0)
+			if (::bind(rtpsock,(struct sockaddr *)&addr,sizeof(struct sockaddr_in)) != 0)
 			{
 				CLOSESOCKETS;
 				MAINMUTEX_UNLOCK
@@ -420,7 +422,7 @@ int RTPUDPv4Transmitter::Create(size_t maximumpacketsize,const RTPTransmissionPa
 				addr.sin_family = AF_INET;
 				addr.sin_port = htons(rtcpport);
 				addr.sin_addr.s_addr = htonl(bindIP);
-				if (bind(rtcpsock,(struct sockaddr *)&addr,sizeof(struct sockaddr_in)) != 0)
+				if (::bind(rtcpsock,(struct sockaddr *)&addr,sizeof(struct sockaddr_in)) != 0)
 				{
 					CLOSESOCKETS;
 					MAINMUTEX_UNLOCK
